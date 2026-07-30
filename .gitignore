@@ -1,0 +1,31 @@
+# IDEA配置文件、缓存
+.idea/
+*.iml
+*.iws
+*.ipr
+MarsCodeWorkspacAppSettings.xml
+
+# 系统隐藏文件
+.DS_Store
+
+# 前端依赖、日志
+fronte-side/node_modules/
+fronte-side/npm-debug.log*
+fronte-side/yarn-debug.log*
+fronte-side/yarn-error.log*
+
+# Java后端编译产物、日志
+server-side/target/
+server-side/logs/
+server-side/*.log
+server-side/*.out
+
+# 算法、AI模块缓存
+algorithm-side/runs/
+algorithm-side/checkpoints/
+ai-side/cache/
+
+# 本地环境配置（防止密钥泄露，Public仓库必加）
+*.env
+application-dev.yml
+application-local.yml
