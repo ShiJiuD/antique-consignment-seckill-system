@@ -1,5 +1,4 @@
-// import request from '@/utils/request'
-
+import request from '@/utils/request'
 // ========== 通用类型 ==========
 
 /** 后端统一响应结构 */
@@ -43,7 +42,7 @@ export interface UserProfile {
 export function sendSmsCode(phone: string): Promise<ApiResponse<SmsSendResult>> {
   // return request.post<ApiResponse<SmsSendResult>>('/api/auth/sms/send', { phone })
   console.log('sendSmsCode', phone)
-  return Promise.resolve({ code: 0, msg: 'ok', data: {} })
+  return request.post( '/api/auth/sms/send', { phone })
 }
 
 /**
@@ -53,7 +52,7 @@ export function sendSmsCode(phone: string): Promise<ApiResponse<SmsSendResult>> 
 export function loginByPassword(phone: string, password: string): Promise<ApiResponse<LoginResult>> {
   // return request.post<ApiResponse<LoginResult>>('/api/auth/login/password', { phone, password })
   console.log('loginByPassword', phone, password)
-  return Promise.resolve({ code: 0, msg: 'ok', data: { token: '' } })
+  return request.post('/api/auth/login/password', { phone,password })
 }
 
 /**
@@ -63,7 +62,7 @@ export function loginByPassword(phone: string, password: string): Promise<ApiRes
 export function loginBySms(phone: string, code: string): Promise<ApiResponse<LoginResult>> {
   // return request.post<ApiResponse<LoginResult>>('/api/auth/login/sms', { phone, code })
   console.log('loginBySms', phone, code)
-  return Promise.resolve({ code: 0, msg: 'ok', data: { token: '' } })
+  return request.post('/api/auth/login/sms', { phone,code })
 }
 
 /**
@@ -71,6 +70,6 @@ export function loginBySms(phone: string, code: string): Promise<ApiResponse<Log
  * GET /api/user/profile
  */
 export function getUserProfile(): Promise<ApiResponse<UserProfile>> {
-  // return request.get<ApiResponse<UserProfile>>('/api/user/profile')
-  return Promise.resolve({ code: 0, msg: 'ok', data: {} as UserProfile })
+  return request.get('/api/user/profile')
+  //return Promise.resolve({ code: 0, msg: 'ok', data: {} as UserProfile })
 }
