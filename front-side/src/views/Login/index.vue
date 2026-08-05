@@ -2,8 +2,12 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { loginByPassword, loginBySms } from '@/api/login'
+import { sendSmsCode } from '@/api/login'
 
 const router = useRouter()
+
+
 
 // ==================== Tab 切换 ====================
 const activeTab = ref<'sms' | 'pwd'>('sms')
@@ -35,16 +39,26 @@ const sendCode = async () => {
     return
   }
 
-  // TODO: 调用发送验证码接口
-  ElMessage.success('验证码已发送')
-  countdown.value = 60
-  timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer!)
-      timer = null
+   try {
+        // 调用真实发送验证码接口
+        const res = await sendSmsCode(smsForm.phone)
+        
+        if (res.code === 1) {
+            ElMessage.success('验证码已发送')
+            countdown.value = 60
+            timer = setInterval(() => {
+                countdown.value--
+                if (countdown.value <= 0) {
+                    clearInterval(timer!)
+                    timer = null
+                }
+            }, 1000)
+        } else {
+            ElMessage.error(res.msg || '发送失败，请重试')
+        }
+    } catch {
+        ElMessage.error('发送失败，请重试')
     }
-  }, 1000)
 }
 
 // ==================== 协议勾选 ====================
@@ -97,23 +111,45 @@ const validate = (): boolean => {
 
 // ==================== 登录 ====================
 const handleLogin = async () => {
-  if (!validate()) return
+    if (!validate()) return
 
-  loading.value = true
-  try {
-    // TODO: 替换为真实登录接口
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    loading.value = true
+    try {
+        // 调用真实登录接口
+        const res = await loginByPassword(pwdForm.phone, pwdForm.password)
 
-    const mockToken = 'mock_token_' + Date.now()
-    localStorage.setItem('token', mockToken)
+        if (res.code === 1) {
+            localStorage.setItem('token', res.data.token)
+            ElMessage.success('登录成功')
+            router.push('/home')
+        } else {
+            ElMessage.error(res.msg || '登录失败')
+        }
+    } catch {
+        ElMessage.error('登录失败，请重试')
+    } finally {
+        loading.value = false
+    }
+}
 
-    ElMessage.success('登录成功')
-    router.push('/home')
-  } catch {
-    ElMessage.error('登录失败，请重试')
-  } finally {
-    loading.value = false
-  }
+const handleSmsLogin = async () => {
+    if (!validate()) return
+
+    loading.value = true
+    try {
+        const res = await loginBySms(smsForm.phone, smsForm.code)
+        if (res.code === 1) {  // ← 文档里成功是 code: 1
+            localStorage.setItem('token', res.data.token)
+            ElMessage.success('登录成功')
+            router.push('/home')
+        } else {
+            ElMessage.error(res.msg || '登录失败')
+        }
+    } catch {
+        ElMessage.error('登录失败，请重试')
+    } finally {
+        loading.value = false
+    }
 }
 
 // ==================== 组件卸载清除定时器 ====================
@@ -215,7 +251,7 @@ onUnmounted(() => {
       <button
         class="login-btn"
         :disabled="loading"
-        @click="handleLogin"
+        @click="activeTab === 'sms' ? handleSmsLogin() : handleLogin()"
       >
         <span v-if="loading" class="spinner"></span>
         {{ loading ? '登录中...' : '登录' }}
@@ -459,4 +495,4 @@ onUnmounted(() => {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-</style>
+    </style><script setup lang="ts"></script>
