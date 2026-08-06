@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.antique.mapper.FavoriteMapper">
+
+    <!--
+        我的收藏列表：favorite INNER JOIN antique 联表查询
+        仅返回卡片展示字段，只展示"在售"且"未逻辑删除"的藏品
+    -->
+    <select id="selectFavoriteAntiquePage" resultType="com.antique.vo.AntiqueCardVO">
+        SELECT
+            a.id,
+            a.title,
+            a.dynasty,
+            a.price,
+            a.cover_image AS coverImage,
+            a.is_hot AS isHot
+        FROM favorite f
+        INNER JOIN antique a ON f.antique_id = a.id
+        WHERE f.user_id = #{userId}
+          AND a.status = 1
+          AND a.deleted_time IS NULL
+        ORDER BY f.created_time DESC
+    </select>
+
+</mapper>

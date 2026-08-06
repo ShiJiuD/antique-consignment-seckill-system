@@ -6,6 +6,8 @@ import com.antique.dto.UpdateProfileDTO;
 import com.antique.result.Result;
 import com.antique.service.UserService;
 import com.antique.vo.UserProfileVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Tag(name = "用户模块", description = "个人信息查询与修改、退出登录")
 public class UserController {
 
     private final UserService userService;
@@ -47,6 +50,7 @@ public class UserController {
      *
      * @return 用户个人信息 VO
      */
+    @Operation(summary = "获取个人信息")
     @GetMapping("/profile")
     public Result<UserProfileVO> getProfile() {
         Long userId = UserContext.getUserId();
@@ -65,6 +69,7 @@ public class UserController {
      * @param dto 包含新昵称(可选)和新头像URL(可选)
      * @return "修改成功"
      */
+    @Operation(summary = "修改个人信息")
     @PutMapping("/profile")
     public Result<?> updateProfile(@RequestBody UpdateProfileDTO dto) {
         Long userId = UserContext.getUserId();
@@ -83,6 +88,7 @@ public class UserController {
      * @param request HTTP 请求（用于提取 Authorization Header）
      * @return "退出成功"
      */
+    @Operation(summary = "退出登录")
     @PostMapping("/logout")
     public Result<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");

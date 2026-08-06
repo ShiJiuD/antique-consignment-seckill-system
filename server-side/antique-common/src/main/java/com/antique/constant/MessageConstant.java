@@ -14,6 +14,17 @@ public class MessageConstant {
     /** 系统内部异常（兜底） */
     public static final String SYSTEM_ERROR = "系统异常";
 
+    /** 系统繁忙（Redis 等基础设施不可用时） */
+    public static final String SYSTEM_BUSY = "系统繁忙";
+
+    // ==================== 通用参数校验 ====================
+
+    /** 请求体格式错误（JSON 解析失败或字段类型不匹配） */
+    public static final String PARAM_FORMAT_ERROR = "请求参数格式错误";
+
+    /** 参数校验兜底提示（无具体字段错误信息时使用） */
+    public static final String PARAM_ERROR = "参数错误";
+
     // ==================== 认证相关 ====================
 
     /** 手机号格式校验失败 */
@@ -47,4 +58,32 @@ public class MessageConstant {
 
     /** 个人信息修改成功 */
     public static final String PROFILE_UPDATE_SUCCESS = "修改成功";
+
+    // ==================== 藏品相关 ====================
+
+    /** 查询成功（列表/搜索/详情/收藏列表） */
+    public static final String QUERY_SUCCESS = "查询成功";
+
+    /** 藏品不存在 */
+    public static final String ANTIQUE_NOT_EXIST = "藏品不存在";
+
+    /** 藏品不存在或已下架 */
+    public static final String ANTIQUE_NOT_ON_SALE = "藏品不存在或已下架";
+
+    /** 搜索关键词不能为空 */
+    public static final String SEARCH_KEYWORD_EMPTY = "搜索关键词不能为空";
+
+    // ==================== 收藏相关 ====================
+
+    /** 收藏成功 */
+    public static final String FAVORITE_ADD_SUCCESS = "收藏成功";
+
+    /** 取消收藏成功 */
+    public static final String FAVORITE_REMOVE_SUCCESS = "取消收藏成功";
+
+    /** 已收藏过该藏品（重复收藏） */
+    public static final String FAVORITE_ALREADY = "已收藏过该藏品";
+
+    /** 未收藏该藏品（取消收藏时） */
+    public static final String FAVORITE_NOT_EXIST = "未收藏该藏品";
 }

@@ -5,7 +5,7 @@ import com.antique.exception.BaseException;
 import com.antique.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * <h3>异常处理优先级（由具体到笼统）</h3>
  * <ol>
  *   <li>{@code BaseException} → 业务异常，返回自定义消息</li>
- *   <li>{@code MethodArgumentNotValidException} → 参数校验失败（@Valid），返回第一条错误</li>
+ *   <li>{@code BindException} → 参数绑定/校验失败（@Valid），返回第一条错误</li>
  *   <li>{@code HttpMessageNotReadableException} → 请求体格式错误（JSON 解析失败）</li>
  *   <li>{@code Exception} → 兜底，返回"系统异常"，记录完整堆栈</li>
  * </ol>
@@ -42,19 +42,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 参数校验异常 — @Valid 校验失败时触发
+     * 参数绑定/校验异常 — @Valid 校验失败时触发
      *
-     * <p>从所有字段错误中取第一条返回，避免同时暴露过多字段信息。
-     * 例如：phone 为空 → {"code":0,"msg":"手机号不能为空","data":null}
+     * <p>覆盖两类场景（{@code MethodArgumentNotValidException} 继承自
+     * {@code BindException}，一个 handler 即可全部处理）：
+     * <ul>
+     *   <li>@RequestBody 请求体校验失败 → 如 POST /api/favorite/add</li>
+     *   <li>@ModelAttribute 查询参数 DTO 校验失败 → 如 GET /api/antique/search</li>
+     * </ul>
+     * 从所有字段错误中取第一条返回，避免同时暴露过多字段信息。
+     * 例如：keyword 为空 → {"code":0,"msg":"搜索关键词不能为空","data":null}
      */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<?> handleValidation(MethodArgumentNotValidException ex) {
+    @ExceptionHandler(BindException.class)
+    public Result<?> handleBindException(BindException ex) {
         String msg = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(e -> e.getDefaultMessage())
                 .findFirst()
-                .orElse("参数错误");
+                .orElse(MessageConstant.PARAM_ERROR);
         return Result.error(msg);
     }
 
@@ -63,7 +69,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-        return Result.error("请求参数格式错误");
+        return Result.error(MessageConstant.PARAM_FORMAT_ERROR);
     }
 
     /**
