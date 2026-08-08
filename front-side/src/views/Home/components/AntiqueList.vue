@@ -1,0 +1,70 @@
+<template>
+  <div class="antique-list">
+    <!-- 加载中 -->
+    <div v-if="loading" class="antique-list__loading">
+      <el-skeleton :rows="3" animated />
+    </div>
+
+    <!-- 空状态 -->
+    <div v-else-if="list.length === 0" class="antique-list__empty">
+      <p>暂无藏品</p>
+    </div>
+
+    <!-- 藏品网格 -->
+    <div v-else class="antique-list__grid">
+      <AntiqueCard
+        v-for="item in list"
+        :key="item.id"
+        :antique="item"
+        @click="handleItemClick"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { AntiqueItem } from '@/api/antique'
+import AntiqueCard from '@/components/AntiqueCard.vue'
+
+defineProps<{
+  list: AntiqueItem[]
+  loading: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'item-click', item: AntiqueItem): void
+}>()
+
+function handleItemClick(item: AntiqueItem) {
+  emit('item-click', item)
+}
+</script>
+
+<style scoped>
+.antique-list {
+  padding: 0 16px;
+}
+
+.antique-list__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.antique-list__loading {
+  padding: 16px 0;
+}
+
+.antique-list__empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+  color: #999;
+  font-size: 14px;
+}
+
+.antique-list__empty p {
+  margin: 0;
+}
+</style>
