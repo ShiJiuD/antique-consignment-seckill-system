@@ -2,17 +2,26 @@
   <div class="home-page">
     <!-- ==================== 顶部搜索栏 ==================== -->
     <div class="search-bar">
-      <h1 class="search-bar__title" @click="handleTitleClick">古玩寄卖</h1>
-      <div class="search-bar__input-wrap">
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索藏品、年代、材质..."
-          size="default"
-          clearable
-          @keyup.enter="handleSearch"
-        />
+      <div class="search-bar__left">
+        <span class="search-bar__icon">🏺</span>
+        <h1 class="search-bar__title" @click="handleTitleClick">古玩寄卖</h1>
       </div>
-      <button class="search-bar__btn" @click="handleSearch">搜索</button>
+      <div class="search-bar__right">
+        <div class="search-bar__input-wrap">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索藏品、年代、材质..."
+            size="default"
+            clearable
+            @keyup.enter="handleSearch"
+          >
+            <template #prefix>
+              <span class="search-bar__search-icon">🔍</span>
+            </template>
+          </el-input>
+        </div>
+        <button class="search-bar__btn" @click="handleSearch">搜索</button>
+      </div>
     </div>
 
     <!-- ==================== 分类导航 ==================== -->
@@ -54,11 +63,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getAntiqueList, type AntiqueItem } from '@/api/antique'
 import CategoryNav from '@/components/CategoryNav.vue'
 import type { CategoryItem } from '@/components/CategoryNav.vue'
 import AIBanner from '@/components/AIBanner.vue'
 import AntiqueList from '@/components/AntiqueList.vue'
+
+const router = useRouter()
 
 // ==================== 搜索栏 ====================
 const searchKeyword = ref('')
@@ -66,19 +79,20 @@ const searchKeyword = ref('')
 function handleSearch() {
   const keyword = searchKeyword.value.trim()
   if (!keyword) {
-    // ElMessage 在 Element Plus 中可直接使用（已全局注册）
+    ElMessage.warning('请输入搜索关键词')
     return
   }
-  // TODO: 跳转搜索页或调用搜索接口
-  console.log('搜索:', keyword)
+  router.push({ path: '/search', query: { keyword } })
 }
 
 function handleTitleClick() {
-  // 点击标题回顶部或刷新
+  // 点击标题回顶部并刷新列表
   window.scrollTo({ top: 0, behavior: 'smooth' })
+  activeCategoryId.value = 1
+  fetchAntiques(1)
 }
 
-// ==================== 分类导航（前端写死） ====================
+// ==================== 分类导航 ====================
 const activeCategoryId = ref<number>(1)
 
 const categoryList: CategoryItem[] = [
@@ -91,47 +105,47 @@ const categoryList: CategoryItem[] = [
 
 function handleCategoryChange(categoryId: number) {
   activeCategoryId.value = categoryId
-  console.log('切换分类:', categoryId)
-  // TODO: 根据分类加载对应藏品列表
+  fetchAntiques(categoryId)
 }
 
 // ==================== AI 智能助手 ====================
 function handleAIClick() {
-  console.log('打开 AI 智能助手')
-  // TODO: 跳转 AI 助手页面或弹出对话面板
+  ElMessage.info('AI 智能助手功能即将上线，敬请期待！')
 }
 
 // ==================== 热门推荐 ====================
 const hotAntiqueList = ref<AntiqueItem[]>([])
 const hotLoading = ref(false)
 
-async function fetchHotAntiques() {
+async function fetchAntiques(categoryId?: number) {
   hotLoading.value = true
   try {
-    const res = await getAntiqueList({ isHot: true, page: 1, size: 20 })
-    hotAntiqueList.value = res.list ?? []
+    const res = await getAntiqueList({ categoryId, page: 1, size: 20 })
+    // 响应拦截器已解包 axios response，后端统一返回 { code, msg, data }
+    hotAntiqueList.value = (res as any).data?.list ?? []
   } catch (err) {
-    console.error('获取热门藏品失败:', err)
+    console.error('获取藏品列表失败:', err)
+    ElMessage.error('加载藏品失败，请稍后重试')
   } finally {
     hotLoading.value = false
   }
 }
 
 function handleAntiqueClick(item: AntiqueItem) {
-  console.log('点击藏品:', item)
-  // TODO: 跳转藏品详情页
+  router.push(`/antique/${item.id}`)
 }
 
 function handleMore() {
-  console.log('查看更多热门藏品')
-  // TODO: 跳转热门藏品列表页
+  router.push('/search')
 }
 
-// ==================== 底部 Tab 栏（前端写死） ====================
-const activeTab = ref<'home' | 'discover' | 'message' | 'mine'>('home')
+// ==================== 底部 Tab 栏 ====================
+type TabKey = 'home' | 'discover' | 'message' | 'mine'
+
+const activeTab = ref<TabKey>('home')
 
 interface TabItem {
-  key: 'home' | 'discover' | 'message' | 'mine'
+  key: TabKey
   label: string
   icon: string
 }
@@ -143,15 +157,23 @@ const tabList: TabItem[] = [
   { key: 'mine', label: '我的', icon: '👤' },
 ]
 
-function handleTabChange(key: 'home' | 'discover' | 'message' | 'mine') {
+/** Tab → 路由路径映射 */
+const TAB_ROUTES: Record<TabKey, string> = {
+  home: '/home',
+  discover: '/discover',
+  message: '/message',
+  mine: '/mine',
+}
+
+function handleTabChange(key: TabKey) {
+  if (key === activeTab.value) return
   activeTab.value = key
-  console.log('切换 Tab:', key)
-  // TODO: 根据 tab 跳转对应页面
+  router.push(TAB_ROUTES[key])
 }
 
 // ==================== 生命周期 ====================
 onMounted(() => {
-  fetchHotAntiques()
+  fetchAntiques()
 })
 </script>
 
@@ -160,29 +182,62 @@ onMounted(() => {
 .home-page {
   min-height: 100vh;
   background: #f7f5f2;
-  padding-bottom: 60px; /* Tab 栏高度 */
+  padding-bottom: 60px;
 }
 
 /* ==================== 搜索栏 ==================== */
 .search-bar {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, #5d2e0c, #8b4513);
+  padding: 12px 16px;
+  background: linear-gradient(160deg, #4a1d0a 0%, #5d2e0c 40%, #7a3d16 70%, #5d2e0c 100%);
   position: sticky;
   top: 0;
   z-index: 100;
+  /* 底部装饰纹理 */
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 -1px 0 rgba(212, 175, 55, 0.15);
+}
+
+.search-bar::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+}
+
+/* ---- 左侧标题区 ---- */
+.search-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-bar__icon {
+  font-size: 24px;
+  line-height: 1;
 }
 
 .search-bar__title {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #d4af37;
-  white-space: nowrap;
   cursor: pointer;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- 右侧搜索区（输入框 + 按钮） ---- */
+.search-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .search-bar__input-wrap {
@@ -190,10 +245,25 @@ onMounted(() => {
   min-width: 0;
 }
 
+.search-bar__search-icon {
+  font-size: 14px;
+  opacity: 0.6;
+}
+
 .search-bar__input-wrap :deep(.el-input__wrapper) {
-  border-radius: 20px;
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding-left: 14px;
+  transition: box-shadow 0.2s;
+}
+
+.search-bar__input-wrap :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.search-bar__input-wrap :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .search-bar__input-wrap :deep(.el-input__inner) {
@@ -205,20 +275,23 @@ onMounted(() => {
 }
 
 .search-bar__btn {
-  padding: 7px 16px;
+  flex-shrink: 0;
+  padding: 8px 18px;
   border: none;
-  border-radius: 20px;
+  border-radius: 22px;
   background: linear-gradient(135deg, #d4af37, #b8942e);
   color: #3e1f00;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.2s, transform 0.1s;
 }
 
 .search-bar__btn:active {
   opacity: 0.85;
+  transform: scale(0.96);
 }
 
 /* ==================== 底部占位 ==================== */
