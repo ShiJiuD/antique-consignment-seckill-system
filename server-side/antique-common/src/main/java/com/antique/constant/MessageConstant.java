@@ -86,4 +86,12 @@ public class MessageConstant {
 
     /** 未收藏该藏品（取消收藏时） */
     public static final String FAVORITE_NOT_EXIST = "未收藏该藏品";
+
+    // ==================== 签到相关 ====================
+
+    /** 今日已签到（重复签到） */
+    public static final String SIGN_ALREADY = "今日已签到";
+
+    /** 签到成功（积分动态 = 2×连续天数，%d 由 Controller 用 String.format 填充） */
+    public static final String SIGN_SUCCESS = "签到成功，获得%d积分";
 }
