@@ -53,4 +53,56 @@ public interface AntiqueMapper extends BaseMapper<Antique> {
      */
     @Update("UPDATE antique SET like_count = like_count - 1 WHERE id = #{id} AND like_count > 0")
     int decrementLikeCount(Long id);
+
+    // ==================== 订单模块：藏品锁定与回滚（防一物多卖） ====================
+
+    /**
+     * 锁定藏品（创建订单时调用）
+     *
+     * <p>状态 1-在售 → 2-已售，{@code AND status = 1} 条件更新即行级锁：
+     * 并发下单同一藏品时仅第一个事务成功，后者影响行数 0 直接失败，
+     * 从数据库层面杜绝一物多卖。
+     *
+     * @param id 藏品 ID
+     * @return 受影响行数，0 表示藏品已非在售状态（已被锁定或下架）
+     */
+    @Update("UPDATE antique SET status = 2 WHERE id = #{id} AND status = 1")
+    int lockAntique(Long id);
+
+    /**
+     * 回滚藏品为在售（订单取消/超时关单时调用，幂等）
+     *
+     * <p>仅当藏品仍处于锁定态（status=2）且当前没有其他有效订单时才回滚：
+     * <ul>
+     *   <li>status=2 条件：已被新订单锁定（历史单回滚+新单并存场景）时不误伤</li>
+     *   <li>NOT EXISTS 有效订单守卫：同一藏品重新上架后被再次下单，旧单关单不得解锁新单</li>
+     * </ul>
+     *
+     * @param id 藏品 ID
+     * @return 受影响行数，0 表示无需回滚（已被并发处理）
+     */
+    @Update("UPDATE antique SET status = 1 " +
+            "WHERE id = #{id} AND status = 2 " +
+            "AND NOT EXISTS (" +
+            "  SELECT 1 FROM order_items i INNER JOIN orders o ON o.id = i.order_id " +
+            "  WHERE i.antique_id = #{id} AND o.status IN (0, 1, 2) AND o.deleted_time IS NULL)")
+    int releaseAntique(Long id);
+
+    /**
+     * 惰性批量回滚（用户维度，超时批量取消后调用，幂等）
+     *
+     * <p>回滚该用户所有超时取消订单涉及的藏品，守卫与 {@link #releaseAntique} 一致
+     * （仅回滚锁定态 + 无其他有效订单的藏品），与延迟消息/定时任务并发时安全。
+     *
+     * @param userId 买家用户 ID
+     * @return 受影响行数
+     */
+    @Update("UPDATE antique SET status = 1 " +
+            "WHERE status = 2 AND id IN (" +
+            "  SELECT i.antique_id FROM order_items i INNER JOIN orders o ON o.id = i.order_id " +
+            "  WHERE o.user_id = #{userId} AND o.status = 4 AND o.cancel_type = 2) " +
+            "AND NOT EXISTS (" +
+            "  SELECT 1 FROM order_items i INNER JOIN orders o ON o.id = i.order_id " +
+            "  WHERE i.antique_id = antique.id AND o.status IN (0, 1, 2) AND o.deleted_time IS NULL)")
+    int batchReleaseByUser(Long userId);
 }

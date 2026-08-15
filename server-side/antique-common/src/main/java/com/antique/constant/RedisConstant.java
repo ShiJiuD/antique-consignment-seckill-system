@@ -34,6 +34,9 @@ public class RedisConstant {
     /** 签到连续天数缓存 Key 前缀，完整 Key = sign:continuous:{userId} */
     public static final String KEY_SIGN_CONTINUOUS = "sign:continuous:";
 
+    /** 订单超时延迟队列 Key（Redisson RDelayedQueue，元素 = orderId，16 分钟后到期投递） */
+    public static final String KEY_ORDER_DELAY_QUEUE = "delay:order-close";
+
     // ==================== 过期时间（秒） ====================
 
     /** Token 过期时间：7 天 = 60×60×24×7 */

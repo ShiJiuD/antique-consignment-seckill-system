@@ -9,6 +9,7 @@ import com.antique.exception.AuthException;
 import com.antique.mapper.AntiqueMapper;
 import com.antique.mapper.FavoriteMapper;
 import com.antique.service.AntiqueService;
+import com.antique.util.PageUtil;
 import com.antique.vo.AntiqueCardVO;
 import com.antique.vo.AntiqueDetailVO;
 import com.antique.vo.PageResultVO;
@@ -48,17 +49,6 @@ public class AntiqueServiceImpl extends ServiceImpl<AntiqueMapper, Antique> impl
     private final AntiqueMapper antiqueMapper;
     private final FavoriteMapper favoriteMapper;
 
-    // ==================== 分页参数默认值 ====================
-
-    /** 默认页码 */
-    private static final int DEFAULT_PAGE = 1;
-
-    /** 默认每页数量 */
-    private static final int DEFAULT_SIZE = 10;
-
-    /** 每页数量上限（防止一次性拉取过多数据） */
-    private static final int MAX_SIZE = 50;
-
     // ========================================================================
     //  接口 1：获取藏品列表
     // ========================================================================
@@ -70,8 +60,8 @@ public class AntiqueServiceImpl extends ServiceImpl<AntiqueMapper, Antique> impl
     @Override
     public PageResultVO<AntiqueCardVO> pageList(Long categoryId, Integer isHot, Integer page, Integer size) {
         // ----- 步骤 1：分页参数归一化（防止负数/超上限） -----
-        page = normalizePage(page);
-        size = normalizeSize(size);
+        page = PageUtil.normalizePage(page);
+        size = PageUtil.normalizeSize(size);
 
         // ----- 步骤 2：构建动态查询条件 -----
         LambdaQueryWrapper<Antique> wrapper = Wrappers.lambdaQuery();
@@ -158,8 +148,8 @@ public class AntiqueServiceImpl extends ServiceImpl<AntiqueMapper, Antique> impl
         }
 
         // ----- 步骤 2：分页参数归一化 -----
-        page = normalizePage(page);
-        size = normalizeSize(size);
+        page = PageUtil.normalizePage(page);
+        size = PageUtil.normalizeSize(size);
 
         // ----- 步骤 3：构建动态查询条件 -----
         LambdaQueryWrapper<Antique> wrapper = Wrappers.lambdaQuery();
@@ -210,20 +200,4 @@ public class AntiqueServiceImpl extends ServiceImpl<AntiqueMapper, Antique> impl
         }
     }
 
-    /**
-     * 页码归一化：null 或小于 1 时取默认值 1
-     */
-    private int normalizePage(Integer page) {
-        return page == null || page < 1 ? DEFAULT_PAGE : page;
-    }
-
-    /**
-     * 每页数量归一化：null 或小于 1 取默认值 10，超过上限 50 时截断
-     */
-    private int normalizeSize(Integer size) {
-        if (size == null || size < 1) {
-            return DEFAULT_SIZE;
-        }
-        return Math.min(size, MAX_SIZE);
-    }
 }

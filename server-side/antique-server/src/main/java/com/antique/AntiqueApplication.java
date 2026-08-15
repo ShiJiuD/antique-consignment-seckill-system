@@ -3,6 +3,7 @@ package com.antique;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 古玩寄卖平台 — Spring Boot 启动类
@@ -24,6 +25,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * </ul>
  */
 @SpringBootApplication
+@EnableScheduling  // 开启定时任务（订单超时关单兜底）
 @MapperScan("com.antique.mapper")  // 扫描 MyBatis Mapper 接口
 public class AntiqueApplication {
 

@@ -94,4 +94,60 @@ public class MessageConstant {
 
     /** 签到成功（积分动态 = 2×连续天数，%d 由 Controller 用 String.format 填充） */
     public static final String SIGN_SUCCESS = "签到成功，获得%d积分";
+
+    // ==================== 订单相关 ====================
+
+    /** 下单成功 */
+    public static final String ORDER_CREATE_SUCCESS = "下单成功";
+
+    /** 支付成功 */
+    public static final String ORDER_PAY_SUCCESS = "支付成功";
+
+    /** 订单取消成功 */
+    public static final String ORDER_CANCEL_SUCCESS = "订单已取消";
+
+    /** 确认收货成功 */
+    public static final String ORDER_RECEIVE_SUCCESS = "确认收货成功";
+
+    /** 已通知卖家发货 */
+    public static final String ORDER_URGE_SUCCESS = "已通知卖家发货";
+
+    /** 收货信息修改成功 */
+    public static final String ORDER_ADDRESS_UPDATE_SUCCESS = "修改成功";
+
+    /** 订单不存在（或不属于当前用户） */
+    public static final String ORDER_NOT_EXIST = "订单不存在";
+
+    /** 不能购买自己发布的藏品 */
+    public static final String ORDER_CANNOT_BUY_OWN = "不能购买自己发布的藏品";
+
+    /** 该藏品已有未完成订单（一物一单防重复下单） */
+    public static final String ORDER_DUPLICATE_ACTIVE = "该藏品已有未完成订单，请勿重复下单";
+
+    /** 藏品已售出或正在交易中（并发下单时行级锁拦截） */
+    public static final String ORDER_ANTIQUE_LOCKED = "藏品已售出或正在交易中";
+
+    /** 订单已超时关闭（16 分钟未支付） */
+    public static final String ORDER_TIMEOUT_CLOSED = "订单已超时关闭";
+
+    /** 订单已取消 */
+    public static final String ORDER_CANCEL_ALREADY = "订单已取消";
+
+    /** 订单状态不允许支付 */
+    public static final String ORDER_PAY_STATUS_ERROR = "订单状态不允许支付";
+
+    /** 仅待付款订单可取消（已支付订单退款走线下客服） */
+    public static final String ORDER_CANCEL_ONLY_UNPAID = "仅待付款订单可取消，已支付订单退款请咨询客服";
+
+    /** 已发货订单不能修改地址 */
+    public static final String ORDER_ADDRESS_LOCKED = "已发货订单不能修改地址";
+
+    /** 订单状态不允许确认收货 */
+    public static final String ORDER_RECEIVE_STATUS_ERROR = "订单状态不允许确认收货";
+
+    /** 仅待发货订单可催发货 */
+    public static final String ORDER_URGE_ONLY_SHIPPING = "仅待发货订单可催发货";
+
+    /** 当前仅支持单件购买 */
+    public static final String ORDER_QUANTITY_ONLY_ONE = "当前仅支持单件购买";
 }
