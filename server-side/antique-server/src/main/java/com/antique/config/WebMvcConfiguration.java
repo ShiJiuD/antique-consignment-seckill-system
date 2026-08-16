@@ -35,15 +35,18 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     /**
      * 注册 Token 认证拦截器
      *
-     * <p>拦截 /api/**（除 /api/auth/**），在请求到达 Controller 之前
+     * <p>拦截 /api/**（除 /api/auth/**、/api/ws），在请求到达 Controller 之前
      * 完成 Token 校验、续期、用户上下文设置。
+     * <p>/api/ws（WebSocket 握手）不走本拦截器：浏览器无法自定义请求头，
+     * 由 WebSocket 握手拦截器通过 query 参数 token 自行校验。
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/api/**")               // 拦截所有 API 请求
                 .excludePathPatterns(
-                        "/api/auth/**"                    // 登录/验证码接口无需认证
+                        "/api/auth/**",                   // 登录/验证码接口无需认证
+                        WebSocketConfig.WS_ENDPOINT       // WebSocket 握手自行鉴权
                 );
     }
 

@@ -150,4 +150,18 @@ public class MessageConstant {
 
     /** 当前仅支持单件购买 */
     public static final String ORDER_QUANTITY_ONLY_ONE = "当前仅支持单件购买";
+
+    // ==================== 消息相关 ====================
+
+    /** 已读成功 */
+    public static final String MESSAGE_READ_SUCCESS = "已读成功";
+
+    /** 消息不存在（或不属于当前用户） */
+    public static final String MESSAGE_NOT_EXIST = "消息不存在";
+
+    /** 消息标题：订单消息 */
+    public static final String MESSAGE_TITLE_ORDER = "订单消息";
+
+    /** 下单成功消息内容模板（%s = 订单号，由 Service 用 String.format 填充） */
+    public static final String MESSAGE_ORDER_CREATED = "您的订单 %s 已创建成功，请尽快完成支付";
 }

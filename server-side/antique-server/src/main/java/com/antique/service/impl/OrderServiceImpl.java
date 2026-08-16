@@ -10,6 +10,7 @@ import com.antique.exception.AuthException;
 import com.antique.mapper.AntiqueMapper;
 import com.antique.mapper.OrderItemMapper;
 import com.antique.mapper.OrderMapper;
+import com.antique.service.MessageService;
 import com.antique.service.OrderService;
 import com.antique.util.OrderNoGenerator;
 import com.antique.util.OrderVoAssembler;
@@ -68,6 +69,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     private final AntiqueMapper antiqueMapper;
     private final OrderItemMapper orderItemMapper;
     private final RDelayedQueue<Long> orderDelayQueue;
+    private final MessageService messageService;
 
     /**
      * 自注入代理：惰性检查需要调用本类事务方法 closeOrderByTimeout，
@@ -171,6 +173,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
         log.info("创建订单成功: orderId={}, orderNo={}, totalAmount={}, userId={}, antiqueId={}",
                 order.getId(), order.getOrderNo(), totalAmount, userId, dto.getAntiqueId());
+
+        // ----- 步骤 9：发送订单消息（写库同事务 + WebSocket 推送） -----
+        // 失败不影响下单：消息已落库则推送兜底，落库失败仅记日志（练手项目可接受）
+        try {
+            messageService.sendOrderMessage(userId, order.getOrderNo());
+        } catch (Exception e) {
+            log.warn("订单消息发送失败，不影响下单: orderId={}", order.getId(), e);
+        }
+
         return OrderCreateVO.builder()
                 .orderId(order.getId())
                 .orderNo(order.getOrderNo())
