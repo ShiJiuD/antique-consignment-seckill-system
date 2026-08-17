@@ -164,4 +164,9 @@ public class MessageConstant {
 
     /** 下单成功消息内容模板（%s = 订单号，由 Service 用 String.format 填充） */
     public static final String MESSAGE_ORDER_CREATED = "您的订单 %s 已创建成功，请尽快完成支付";
+
+    // ==================== AI 助手相关 ====================
+
+    /** AI 服务不可用（Python 服务未启动/超时/异常时兜底提示） */
+    public static final String AI_SERVICE_UNAVAILABLE = "AI服务暂时不可用，请稍后重试";
 }

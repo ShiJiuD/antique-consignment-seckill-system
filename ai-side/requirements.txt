@@ -1,0 +1,14 @@
+# ===== AI 服务依赖(与桌面 RAG 项目版本保持一致)=====
+langchain==1.3.13
+langchain-community==0.4.2
+langchain-chroma==1.1.0
+langchain-text-splitters==1.1.2
+chromadb==1.5.9
+dashscope==1.26.3
+
+# ===== FastAPI 服务框架(新增)=====
+fastapi>=0.110.0
+uvicorn>=0.27.0
+
+# ===== 知识库上传界面(Streamlit,移植自桌面 RAG 项目)=====
+streamlit==1.60.0
