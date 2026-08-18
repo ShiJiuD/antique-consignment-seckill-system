@@ -1,8 +1,23 @@
 <template>
   <div class="discover-page">
     <div class="discover-page__header">
-      <h2>发现</h2>
-      <p class="discover-page__subtitle">探索更多古玩藏品</p>
+      <h2>古玩寄卖</h2>
+      <div class="search-bar">
+        <div class="search-bar__input-wrap">
+          <el-input
+            
+            placeholder="搜索藏品、年代、材质..."
+            size="default"
+            clearable
+            
+          >
+            <template #prefix>
+              <span class="search-bar__search-icon">🔍</span>
+            </template>
+          </el-input>
+        </div>
+        <button class="search-bar__btn" >搜索</button>
+      </div>
     </div>
 
     <!-- 分类浏览 -->
@@ -77,14 +92,27 @@ function goCategory(id: number) {
 </script>
 
 <style scoped>
-.discover-page {
+.discover-page{
   min-height: 100vh;
   background: #f7f5f2;
   padding-bottom: 70px;
 }
+.search-bar {
+  padding-top: 6px;
+  display: flex;
+  gap: 8px;
+}
+.search-bar__input-wrap {
+  flex: 1;
+  min-width: 0;
+}
 
+.search-bar__search-icon {
+  font-size: 14px;
+  opacity: 0.6;
+}
 .discover-page__header {
-  padding: 28px 16px 16px;
+  padding: 16px 16px 16px;
   background: linear-gradient(160deg, #4a1d0a, #5d2e0c, #7a3d16, #5d2e0c);
   color: #fff;
 }
