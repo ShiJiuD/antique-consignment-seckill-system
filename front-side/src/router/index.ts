@@ -70,6 +70,51 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/favorite',
+    name: 'Favorite',
+    component: () => import('@/views/Favorite/index.vue'),
+    meta: {
+      title: '我的收藏',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: () => import('@/views/History/index.vue'),
+    meta: {
+      title: '浏览记录',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/list',
+    name: 'OrderList',
+    component: () => import('@/views/Order/List/index.vue'),
+    meta: {
+      title: '我的订单',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/detail/:id',
+    name: 'OrderDetail',
+    component: () => import('@/views/Order/Detail/index.vue'),
+    meta: {
+      title: '订单详情',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/pay',
+    name: 'OrderPay',
+    component: () => import('@/views/Order/Pay/index.vue'),
+    meta: {
+      title: '模拟支付',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/',
     redirect: '/login',
   },

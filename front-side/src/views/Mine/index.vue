@@ -11,6 +11,15 @@
       </div>
     </div>
 
+    <!-- 我的订单入口（位于签到卡片上方） -->
+    <div class="order-entry" @click="goOrderList">
+      <span class="order-entry__left">
+        <span class="order-entry__icon">🧾</span>
+        <span class="order-entry__label">我的订单</span>
+      </span>
+      <span class="order-entry__arrow">›</span>
+    </div>
+
     <!-- ==================== 签到卡片（位于「我的收藏」上方） ==================== -->
     <div class="sign-card" @click="handleSign">
       <div class="sign-card__header">
@@ -134,8 +143,22 @@ function handleTabChange(key: TabKey) {
   router.push(TAB_ROUTES[key])
 }
 
+/** 菜单点击：收藏 / 浏览记录跳转对应列表页，其余菜单保留原逻辑不动 */
 function handleMenu(key: string) {
   console.log('点击菜单:', key)
+  if (key === 'favorites') {
+    router.push('/favorite')
+    return
+  }
+  if (key === 'history') {
+    router.push('/history')
+    return
+  }
+}
+
+/** 我的订单入口：跳转订单列表页 */
+function goOrderList() {
+  router.push('/order/list')
 }
 
 function handleLogout() {
@@ -381,6 +404,41 @@ onMounted(() => {
   margin: 4px 0 0;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* ==================== 我的订单入口（签到卡片上方） ==================== */
+.order-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 16px 0;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.order-entry:active {
+  background: #faf7f2;
+}
+
+.order-entry__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #91572c;
+}
+
+.order-entry__icon {
+  font-size: 18px;
+}
+
+.order-entry__arrow {
+  color: #ccc;
+  font-size: 20px;
 }
 
 /* ==================== 签到卡片 ==================== */

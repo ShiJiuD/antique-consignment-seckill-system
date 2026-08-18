@@ -85,6 +85,15 @@
         立即购买
       </button>
     </div>
+
+    <!-- 确认购买弹窗（立即购买：创建订单 → 跳转模拟支付页） -->
+    <BuyConfirmPopup
+      v-if="detail"
+      v-model:visible="buyVisible"
+      :antique-id="detail.id"
+      :title="detail.title"
+      :price="detail.price"
+    />
   </div>
 </template>
 
@@ -94,6 +103,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getAntiqueDetail, type AntiqueDetail } from '@/api/antique'
 import { addFavorite, removeFavorite } from '@/api/favorite'
+import BuyConfirmPopup from '@/components/BuyConfirmPopup/index.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -104,6 +114,8 @@ const router = useRouter()
 const detail = ref<AntiqueDetail | null>(null)
 /** 加载状态 */
 const loading = ref(false)
+/** 确认购买弹窗显隐 */
+const buyVisible = ref(false)
 
 /** 封面图加载失败时的兜底占位图 */
 const defaultCover = 'https://via.placeholder.com/300x200/f5f0eb/8b4513?text=古玩藏品'
@@ -164,8 +176,9 @@ function handleContact() {
   ElMessage.info(`请联系卖家：${detail.value?.sellerName ?? ''}`)
 }
 
+/** 立即购买：打开确认购买弹窗 */
 function handleBuy() {
-  ElMessage.info('购买功能即将上线，敬请期待！')
+  buyVisible.value = true
 }
 
 /** 图片加载失败时替换为占位图 */
