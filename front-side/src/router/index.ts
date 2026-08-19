@@ -12,7 +12,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Login/index.vue'),
     meta: {
       title: '登录',
-      // 标记该页面无需登录即可访问
       requiresAuth: false,
     },
   },
@@ -22,13 +21,99 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Home/index.vue'),
     meta: {
       title: '首页',
-      // 标记该页面需要登录才能访问
       requiresAuth: true,
     },
   },
-  /**
-   * 默认重定向：根路径自动跳转到登录页
-   */
+  {
+    path: '/search',
+    name: 'Search',
+    component: () => import('@/views/Search/index.vue'),
+    meta: {
+      title: '搜索藏品',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/antique/:id',
+    name: 'AntiqueDetail',
+    component: () => import('@/views/Detail/index.vue'),
+    meta: {
+      title: '藏品详情',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/discover',
+    name: 'Discover',
+    component: () => import('@/views/Discover/index.vue'),
+    meta: {
+      title: '发现',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/message',
+    name: 'Message',
+    component: () => import('@/views/Message/index.vue'),
+    meta: {
+      title: '消息',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/mine',
+    name: 'Mine',
+    component: () => import('@/views/Mine/index.vue'),
+    meta: {
+      title: '我的',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/favorite',
+    name: 'Favorite',
+    component: () => import('@/views/Favorite/index.vue'),
+    meta: {
+      title: '我的收藏',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: () => import('@/views/History/index.vue'),
+    meta: {
+      title: '浏览记录',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/list',
+    name: 'OrderList',
+    component: () => import('@/views/Order/List/index.vue'),
+    meta: {
+      title: '我的订单',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/detail/:id',
+    name: 'OrderDetail',
+    component: () => import('@/views/Order/Detail/index.vue'),
+    meta: {
+      title: '订单详情',
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/order/pay',
+    name: 'OrderPay',
+    component: () => import('@/views/Order/Pay/index.vue'),
+    meta: {
+      title: '模拟支付',
+      requiresAuth: true,
+    },
+  },
   {
     path: '/',
     redirect: '/login',
