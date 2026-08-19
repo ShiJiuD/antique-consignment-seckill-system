@@ -76,7 +76,7 @@
               单价 ¥{{ goods.price.toLocaleString() }} × {{ goods.quantity }}
             </p>
           </div>
-          <span class="od-goods__subtotal">小计 ¥{{ goods.subtotal.toLocaleString() }}</span>
+          <span class="od-goods__subtotal">小计 ¥{{ goods?.subtotal?.toLocaleString() ?? '0' }}</span>
         </div>
       </div>
 

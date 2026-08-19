@@ -356,8 +356,9 @@ onMounted(() => {
 }
 
 .header {
+  padding: 15px;
   display: flex;
-  text-align: center;
+  justify-content: center;
   align-items: center;
   background: linear-gradient(160deg, #4a1d0a, #5d2e0c, #7a3d16, #5d2e0c);
 }
@@ -374,7 +375,7 @@ onMounted(() => {
   align-items: center;
   gap: 14px;
   padding: 24px 20px;
-  background: linear-gradient(160deg, #582915, #5d2e0c, #7a3d16, #5d2e0c);
+  background:  #b5471f;
 }
 
 .mine-page__avatar {

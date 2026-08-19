@@ -7,20 +7,18 @@
         <h1 class="search-bar__title" @click="handleTitleClick">古玩寄卖</h1>
       </div>
       <div class="search-bar__right">
-        <div class="search-bar__input-wrap">
+        <div class="search-bar__input-wrap" @click="openSearchPopup">
           <el-input
-            v-model="searchKeyword"
+            readonly
             placeholder="搜索藏品、年代、材质..."
             size="default"
-            clearable
-            @keyup.enter="handleSearch"
           >
             <template #prefix>
               <span class="search-bar__search-icon">🔍</span>
             </template>
           </el-input>
         </div>
-        <button class="search-bar__btn" @click="handleSearch">搜索</button>
+        <button class="search-bar__btn" @click="openSearchPopup">搜索</button>
       </div>
     </div>
 
@@ -44,6 +42,9 @@
 
     <!-- ==================== 底部占位（防止 Tab 栏遮挡内容） ==================== -->
     <div class="home-page__placeholder"></div>
+
+    <!-- ==================== 全屏搜索弹窗 ==================== -->
+    <SearchPopup v-model:visible="searchPopupVisible" />
 
     <!-- ==================== 底部 Tab 栏 ==================== -->
     <div class="tab-bar">
@@ -70,19 +71,17 @@ import CategoryNav from '@/components/CategoryNav.vue'
 import type { CategoryItem } from '@/components/CategoryNav.vue'
 import AIBanner from '@/components/AIBanner.vue'
 import AntiqueList from '@/components/AntiqueList.vue'
+import SearchPopup from '@/components/SearchPopup/index.vue'
 
 const router = useRouter()
 
 // ==================== 搜索栏 ====================
-const searchKeyword = ref('')
+/** 全屏搜索弹窗显隐 */
+const searchPopupVisible = ref(false)
 
-function handleSearch() {
-  const keyword = searchKeyword.value.trim()
-  if (!keyword) {
-    ElMessage.warning('请输入搜索关键词')
-    return
-  }
-  router.push({ path: '/search', query: { keyword } })
+/** 点击搜索框 / 搜索按钮：弹出全屏搜索弹窗 */
+function openSearchPopup() {
+  searchPopupVisible.value = true
 }
 
 function handleTitleClick() {
@@ -244,6 +243,12 @@ onMounted(() => {
 .search-bar__input-wrap {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
+}
+
+/* 输入框为只读触发区：点击弹出搜索弹窗 */
+.search-bar__input-wrap :deep(.el-input__inner) {
+  cursor: pointer;
 }
 
 .search-bar__search-icon {
