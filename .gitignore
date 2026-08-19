@@ -29,3 +29,4 @@ ai-side/cache/
 *.env
 application-dev.yml
 application-local.yml
+front-side/package-lock.json
