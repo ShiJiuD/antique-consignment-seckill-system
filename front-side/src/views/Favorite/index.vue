@@ -128,7 +128,7 @@ async function fetchFavorites(): Promise<void> {
   loading.value = true
   loadError.value = false
   try {
-    const res = await getFavoriteList({ page: 1, size: 100 })
+    const res = await getFavoriteList({ page: 1, size: 50 })
     if (res.code === 1) {
       favoriteList.value = res.data.list
     } else {
