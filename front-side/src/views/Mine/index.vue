@@ -110,6 +110,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import SignInPopup from '@/components/SignInPopup/index.vue'
+import { useMessageStore } from '@/stores/message'
 
 const continueSignDays = ref(0)
 const newPoints = ref(0)
@@ -166,6 +167,8 @@ function goOrderList() {
 }
 
 function handleLogout() {
+  // 退出登录：主动关闭消息 WebSocket 并清空消息仓库状态
+  useMessageStore().reset()
   localStorage.removeItem('token')
   localStorage.removeItem('nickname')
   localStorage.removeItem('phone')
