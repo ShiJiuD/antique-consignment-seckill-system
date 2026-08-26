@@ -61,6 +61,15 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/ai',
+    name: 'Ai',
+    component: () => import('@/views/Ai/index.vue'),
+    meta: {
+      title: 'AI智能助手',
+      requiresAuth: true,
+    },
+  },
+  {
     path: '/mine',
     name: 'Mine',
     component: () => import('@/views/Mine/index.vue'),

@@ -109,7 +109,8 @@ function handleCategoryChange(categoryId: number) {
 
 // ==================== AI 智能助手 ====================
 function handleAIClick() {
-  ElMessage.info('AI 智能助手功能即将上线，敬请期待！')
+  // ElMessage.info('AI 智能助手功能即将上线，敬请期待！')
+  router.push('/ai')
 }
 
 // ==================== 热门推荐 ====================
