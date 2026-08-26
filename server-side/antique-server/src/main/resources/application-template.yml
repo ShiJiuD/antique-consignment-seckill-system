@@ -74,3 +74,8 @@ antique:
     token-header: Authorization        # 请求头中 token 的 key
     token-ttl: 604800                  # token 有效期（秒），默认 7 天
     token-prefix: antique:token:       # Redis 中 token 的 key 前缀
+
+# AI 助手（Python 服务地址，ai-side 的 FastAPI 服务）
+ai:
+  python:
+    url: http://127.0.0.1:8001

@@ -12,7 +12,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * <h3>拦截范围</h3>
  * <p>拦截所有 {@code /api/**} 路径，但排除 {@code /api/auth/**}。
- * 这意味着所有非登录/验证码接口都需要携带有效的 Authorization Header。
+ * 其余路径分两类（由 TokenInterceptor 内部判定）：
+ * <ul>
+ *   <li>强制认证：如 {@code /api/favorite/**}，未登录一律返回 401</li>
+ *   <li>可选认证（公开）：{@code /api/antique/**}，无 Token 匿名放行，
+ *       有有效 Token 则照常写入用户上下文（详情接口据此返回 isFavorited）</li>
+ * </ul>
  *
  * <h3>CORS 配置</h3>
  * <p>开发环境开放全部跨域请求。生产环境应改为限制具体域名。
@@ -30,15 +35,18 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     /**
      * 注册 Token 认证拦截器
      *
-     * <p>拦截 /api/**（除 /api/auth/**），在请求到达 Controller 之前
+     * <p>拦截 /api/**（除 /api/auth/**、/api/ws），在请求到达 Controller 之前
      * 完成 Token 校验、续期、用户上下文设置。
+     * <p>/api/ws（WebSocket 握手）不走本拦截器：浏览器无法自定义请求头，
+     * 由 WebSocket 握手拦截器通过 query 参数 token 自行校验。
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/api/**")               // 拦截所有 API 请求
                 .excludePathPatterns(
-                        "/api/auth/**"                    // 登录/验证码接口无需认证
+                        "/api/auth/**",                   // 登录/验证码接口无需认证
+                        WebSocketConfig.WS_ENDPOINT       // WebSocket 握手自行鉴权
                 );
     }
 

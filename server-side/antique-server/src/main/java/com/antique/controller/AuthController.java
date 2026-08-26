@@ -7,6 +7,8 @@ import com.antique.dto.SmsLoginDTO;
 import com.antique.result.Result;
 import com.antique.service.UserService;
 import com.antique.vo.LoginVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "认证模块", description = "短信验证码发送、短信登录、密码登录")
 public class AuthController {
 
     private final UserService userService;
@@ -46,6 +49,7 @@ public class AuthController {
      * @param dto 包含手机号（格式 ^1[3-9]\d{9}$）
      * @return {"code":1,"msg":"验证码发送成功","data":null}
      */
+    @Operation(summary = "发送短信验证码")
     @PostMapping("/sms/send")
     public Result<?> sendCode(@Valid @RequestBody SendCodeDTO dto) {
         log.info("发送验证码: phone={}", dto.getPhone());
@@ -63,6 +67,7 @@ public class AuthController {
      * @param dto 包含手机号和 6 位验证码
      * @return {"code":1,"msg":"登录成功","data":{"token":"...","userInfo":{...}}}
      */
+    @Operation(summary = "短信验证码登录")
     @PostMapping("/login/sms")
     public Result<LoginVO> smsLogin(@Valid @RequestBody SmsLoginDTO dto) {
         log.info("短信登录: phone={}", dto.getPhone());
@@ -81,6 +86,7 @@ public class AuthController {
      * @param dto 包含手机号和明文密码
      * @return {"code":1,"msg":"登录成功","data":{"token":"...","userInfo":{...}}}
      */
+    @Operation(summary = "密码登录")
     @PostMapping("/login/password")
     public Result<LoginVO> passwordLogin(@Valid @RequestBody PasswordLoginDTO dto) {
         log.info("密码登录: phone={}", dto.getPhone());

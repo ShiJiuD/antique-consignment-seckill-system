@@ -1,5 +1,6 @@
 package com.antique.result;
 
+import com.antique.constant.MessageConstant;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -35,7 +36,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> success() {
         Result<T> result = new Result<>();
         result.code = 1;
-        result.msg = "操作成功";
+        result.msg = MessageConstant.OP_SUCCESS;
         return result;
     }
 
@@ -46,7 +47,7 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();
         result.code = 1;
-        result.msg = "操作成功";
+        result.msg = MessageConstant.OP_SUCCESS;
         result.data = data;
         return result;
     }

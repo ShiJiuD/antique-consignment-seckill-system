@@ -1,6 +1,7 @@
 package com.antique.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.json.JSONUtil;
 import com.antique.constant.MessageConstant;
 import com.antique.entity.User;
 import com.antique.exception.AuthException;
@@ -11,7 +12,6 @@ import com.antique.vo.UserProfileVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
@@ -48,7 +48,6 @@ import static com.antique.constant.RedisConstant.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final StringRedisTemplate redisTemplate;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     // ========================================================================
     //  接口 1：发送短信验证码
@@ -80,7 +79,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             );
         } catch (Exception e) {
             log.error("Redis 存储验证码失败: phone={}", phone, e);
-            throw new AuthException("系统繁忙");
+            throw new AuthException(MessageConstant.SYSTEM_BUSY);
         }
 
         log.info("发送验证码到 {}: {}", phone, code);
@@ -111,7 +110,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             storedCode = redisTemplate.opsForValue().get(KEY_SMS_CODE + phone);
         } catch (Exception e) {
             log.error("Redis 读取验证码失败: phone={}", phone, e);
-            throw new AuthException("系统繁忙");
+            throw new AuthException(MessageConstant.SYSTEM_BUSY);
         }
 
         if (storedCode == null || !storedCode.equals(code)) {
@@ -294,7 +293,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 存入 Redis，TTL 7 天
         try {
-            String json = MAPPER.writeValueAsString(userInfo);
+            // Hutool JSONUtil 序列化为 JSON 字符串（无检查异常，无需捕获序列化错误）
+            String json = JSONUtil.toJsonStr(userInfo);
             redisTemplate.opsForValue().set(
                     KEY_TOKEN + token,
                     json,
@@ -303,7 +303,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             );
         } catch (Exception e) {
             log.error("Redis 存储 Token 失败: userId={}", user.getId(), e);
-            throw new AuthException("系统繁忙");
+            throw new AuthException(MessageConstant.SYSTEM_BUSY);
         }
 
         return token;

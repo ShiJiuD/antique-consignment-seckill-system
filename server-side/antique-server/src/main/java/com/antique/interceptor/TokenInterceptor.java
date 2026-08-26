@@ -1,18 +1,19 @@
 package com.antique.interceptor;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.antique.constant.MessageConstant;
 import com.antique.context.UserContext;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.antique.constant.RedisConstant.KEY_TOKEN;
@@ -32,6 +33,14 @@ import static com.antique.constant.RedisConstant.TOKEN_TTL;
  *   <li>请求处理完成后 → afterCompletion 清理 {@code UserContext}</li>
  * </ol>
  *
+ * <h3>可选认证（公开接口）</h3>
+ * <p>{@code /api/antique/**} 下的接口（藏品列表/详情/搜索）为公开访问：
+ * <ul>
+ *   <li>携带有效 Token → 正常鉴权并设置用户上下文（详情接口据此返回 isFavorited）</li>
+ *   <li>无 Token 或 Token 已失效 → 按匿名用户放行，不阻断公开页面访问</li>
+ * </ul>
+ * 其余 /api/** 路径仍为强制认证，未登录一律返回 401。
+ *
  * <h3>与 ciTY Art 的核心差异</h3>
  * <ul>
  *   <li>ciTY Art 使用 JWT 自包含 Token + Redis 黑名单</li>
@@ -45,7 +54,17 @@ import static com.antique.constant.RedisConstant.TOKEN_TTL;
 public class TokenInterceptor implements HandlerInterceptor {
 
     private final StringRedisTemplate redisTemplate;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    /**
+     * 可选认证路径（Ant 通配符）
+     *
+     * <p>匹配的路径允许匿名访问；若携带有效 Token 则照常鉴权并写入用户上下文。
+     * 目前仅藏品公开接口使用（详情接口需要可选地判断 isFavorited）。
+     */
+    private static final String[] OPTIONAL_AUTH_PATHS = {"/api/antique/**"};
+
+    /** Ant 路径匹配器（用于通配符匹配请求 URI） */
+    private static final PathMatcher PATH_MATCHER = new AntPathMatcher();
 
     /**
      * 请求前拦截 — Token 校验、续期、用户上下文设置
@@ -57,9 +76,16 @@ public class TokenInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
+        // 当前请求是否为可选认证路径（公开接口）
+        boolean optionalAuth = isOptionalAuthPath(request.getRequestURI());
+
         // ====== 步骤 1：提取 Token ======
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // 可选认证路径：无 Token 则匿名放行（UserContext 不设置，getUserId() 返回 null）
+            if (optionalAuth) {
+                return true;
+            }
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(
                     "{\"code\":0,\"msg\":\"" + MessageConstant.NOT_LOGIN + "\",\"data\":null}");
@@ -77,12 +103,17 @@ public class TokenInterceptor implements HandlerInterceptor {
         } catch (Exception e) {
             log.error("Redis 读取 Token 失败: token={}", token, e);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":0,\"msg\":\"系统繁忙\",\"data\":null}");
+            response.getWriter().write("{\"code\":0,\"msg\":\"" + MessageConstant.SYSTEM_BUSY + "\",\"data\":null}");
             return false;
         }
 
         // Token 不存在或已过期
         if (userJson == null) {
+            // 可选认证路径：Token 已失效则按匿名用户放行，不阻断公开页面访问
+            if (optionalAuth) {
+                log.warn("公开接口携带失效 Token，按匿名放行: uri={}", request.getRequestURI());
+                return true;
+            }
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(
                     "{\"code\":0,\"msg\":\"" + MessageConstant.NOT_LOGIN + "\",\"data\":null}");
@@ -90,10 +121,10 @@ public class TokenInterceptor implements HandlerInterceptor {
         }
 
         // ====== 步骤 3：解析用户信息 JSON ======
-        // TypeReference 提供泛型类型信息，避免编译器"unchecked cast"警告
-        Map<String, Object> userMap = MAPPER.readValue(userJson, new TypeReference<Map<String, Object>>() {});
-        Long userId = Long.valueOf(userMap.get("userId").toString());
-        String phone = (String) userMap.get("phone");
+        // 使用 Hutool JSONUtil 解析：getLong/getStr 自动做类型转换，且对缺失/空值容错返回 null
+        JSONObject userJsonObj = JSONUtil.parseObj(userJson);
+        Long userId = userJsonObj.getLong("userId");
+        String phone = userJsonObj.getStr("phone");
 
         // ====== 步骤 4：设置用户上下文（ThreadLocal） ======
         UserContext.set(userId, phone);
@@ -121,5 +152,23 @@ public class TokenInterceptor implements HandlerInterceptor {
                                 HttpServletResponse response,
                                 Object handler, Exception ex) {
         UserContext.clear();
+    }
+
+    /**
+     * 判断当前请求路径是否为可选认证路径
+     *
+     * <p>使用 Ant 通配符匹配（如 {@code /api/antique/**}），
+     * 匹配成功表示该接口允许匿名访问。
+     *
+     * @param requestUri 请求路径（不含域名和 QueryString）
+     * @return true=可选认证（匿名放行），false=强制认证
+     */
+    private boolean isOptionalAuthPath(String requestUri) {
+        for (String pattern : OPTIONAL_AUTH_PATHS) {
+            if (PATH_MATCHER.match(pattern, requestUri)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

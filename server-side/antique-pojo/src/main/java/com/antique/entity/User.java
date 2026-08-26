@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -47,6 +48,12 @@ public class User implements Serializable {
     /** BCrypt 加密密码，短信登录用户可为 null */
     private String password;
 
+    /** 微信 openid */
+    private String openid;
+
+    /** 微信 unionid（多应用统一标识） */
+    private String unionid;
+
     /** 用户昵称 */
     private String nickname;
 
@@ -62,12 +69,15 @@ public class User implements Serializable {
     /** 连续签到天数 */
     private Integer signInDays;
 
+    /** 最后签到日期 */
+    private LocalDate lastSignDate;
+
     /** 创建时间（自动填充） */
-    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @TableField(value = "created_time", fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /** 更新时间（自动填充：新增和修改时均更新） */
-    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_time", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
     /** 逻辑删除时间，NULL=未删除，非NULL=删除时间 */

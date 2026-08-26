@@ -14,6 +14,17 @@ public class MessageConstant {
     /** 系统内部异常（兜底） */
     public static final String SYSTEM_ERROR = "系统异常";
 
+    /** 系统繁忙（Redis 等基础设施不可用时） */
+    public static final String SYSTEM_BUSY = "系统繁忙";
+
+    // ==================== 通用参数校验 ====================
+
+    /** 请求体格式错误（JSON 解析失败或字段类型不匹配） */
+    public static final String PARAM_FORMAT_ERROR = "请求参数格式错误";
+
+    /** 参数校验兜底提示（无具体字段错误信息时使用） */
+    public static final String PARAM_ERROR = "参数错误";
+
     // ==================== 认证相关 ====================
 
     /** 手机号格式校验失败 */
@@ -47,4 +58,115 @@ public class MessageConstant {
 
     /** 个人信息修改成功 */
     public static final String PROFILE_UPDATE_SUCCESS = "修改成功";
+
+    // ==================== 藏品相关 ====================
+
+    /** 查询成功（列表/搜索/详情/收藏列表） */
+    public static final String QUERY_SUCCESS = "查询成功";
+
+    /** 藏品不存在 */
+    public static final String ANTIQUE_NOT_EXIST = "藏品不存在";
+
+    /** 藏品不存在或已下架 */
+    public static final String ANTIQUE_NOT_ON_SALE = "藏品不存在或已下架";
+
+    /** 搜索关键词不能为空 */
+    public static final String SEARCH_KEYWORD_EMPTY = "搜索关键词不能为空";
+
+    // ==================== 收藏相关 ====================
+
+    /** 收藏成功 */
+    public static final String FAVORITE_ADD_SUCCESS = "收藏成功";
+
+    /** 取消收藏成功 */
+    public static final String FAVORITE_REMOVE_SUCCESS = "取消收藏成功";
+
+    /** 已收藏过该藏品（重复收藏） */
+    public static final String FAVORITE_ALREADY = "已收藏过该藏品";
+
+    /** 未收藏该藏品（取消收藏时） */
+    public static final String FAVORITE_NOT_EXIST = "未收藏该藏品";
+
+    // ==================== 签到相关 ====================
+
+    /** 今日已签到（重复签到） */
+    public static final String SIGN_ALREADY = "今日已签到";
+
+    /** 签到成功（积分动态 = 2×连续天数，%d 由 Controller 用 String.format 填充） */
+    public static final String SIGN_SUCCESS = "签到成功，获得%d积分";
+
+    // ==================== 订单相关 ====================
+
+    /** 下单成功 */
+    public static final String ORDER_CREATE_SUCCESS = "下单成功";
+
+    /** 支付成功 */
+    public static final String ORDER_PAY_SUCCESS = "支付成功";
+
+    /** 订单取消成功 */
+    public static final String ORDER_CANCEL_SUCCESS = "订单已取消";
+
+    /** 确认收货成功 */
+    public static final String ORDER_RECEIVE_SUCCESS = "确认收货成功";
+
+    /** 已通知卖家发货 */
+    public static final String ORDER_URGE_SUCCESS = "已通知卖家发货";
+
+    /** 收货信息修改成功 */
+    public static final String ORDER_ADDRESS_UPDATE_SUCCESS = "修改成功";
+
+    /** 订单不存在（或不属于当前用户） */
+    public static final String ORDER_NOT_EXIST = "订单不存在";
+
+    /** 不能购买自己发布的藏品 */
+    public static final String ORDER_CANNOT_BUY_OWN = "不能购买自己发布的藏品";
+
+    /** 该藏品已有未完成订单（一物一单防重复下单） */
+    public static final String ORDER_DUPLICATE_ACTIVE = "该藏品已有未完成订单，请勿重复下单";
+
+    /** 藏品已售出或正在交易中（并发下单时行级锁拦截） */
+    public static final String ORDER_ANTIQUE_LOCKED = "藏品已售出或正在交易中";
+
+    /** 订单已超时关闭（16 分钟未支付） */
+    public static final String ORDER_TIMEOUT_CLOSED = "订单已超时关闭";
+
+    /** 订单已取消 */
+    public static final String ORDER_CANCEL_ALREADY = "订单已取消";
+
+    /** 订单状态不允许支付 */
+    public static final String ORDER_PAY_STATUS_ERROR = "订单状态不允许支付";
+
+    /** 仅待付款订单可取消（已支付订单退款走线下客服） */
+    public static final String ORDER_CANCEL_ONLY_UNPAID = "仅待付款订单可取消，已支付订单退款请咨询客服";
+
+    /** 已发货订单不能修改地址 */
+    public static final String ORDER_ADDRESS_LOCKED = "已发货订单不能修改地址";
+
+    /** 订单状态不允许确认收货 */
+    public static final String ORDER_RECEIVE_STATUS_ERROR = "订单状态不允许确认收货";
+
+    /** 仅待发货订单可催发货 */
+    public static final String ORDER_URGE_ONLY_SHIPPING = "仅待发货订单可催发货";
+
+    /** 当前仅支持单件购买 */
+    public static final String ORDER_QUANTITY_ONLY_ONE = "当前仅支持单件购买";
+
+    // ==================== 消息相关 ====================
+
+    /** 已读成功 */
+    public static final String MESSAGE_READ_SUCCESS = "已读成功";
+
+    /** 消息不存在（或不属于当前用户） */
+    public static final String MESSAGE_NOT_EXIST = "消息不存在";
+
+    /** 消息标题：订单消息 */
+    public static final String MESSAGE_TITLE_ORDER = "订单消息";
+
+    /** 下单成功消息内容模板（%s = 订单号，由 Service 用 String.format 填充） */
+    public static final String MESSAGE_ORDER_CREATED = "您的订单 %s 已创建成功，请尽快完成支付";
+
+    // ==================== AI 助手相关 ====================
+
+    /** AI 服务不可用（Python 服务未启动/超时/异常时兜底提示） */
+    public static final String AI_SERVICE_UNAVAILABLE = "AI服务暂时不可用，请稍后重试";
 }
