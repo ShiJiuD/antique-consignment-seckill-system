@@ -8,6 +8,7 @@
       <div class="mine-page__header-info">
         <h3 class="mine-page__name">{{ username }}</h3>
         <p class="mine-page__phone">{{ phone }}</p>
+        <p>积分：{{newPoints ?? 0}} | 已签到 {{ continueSignDays ?? 0 }} 天</p>
       </div>
     </div>
 
@@ -109,6 +110,10 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import SignInPopup from '@/components/SignInPopup/index.vue'
+import { useMessageStore } from '@/stores/message'
+
+const continueSignDays = ref(0)
+const newPoints = ref(0)
 
 const router = useRouter()
 
@@ -162,6 +167,8 @@ function goOrderList() {
 }
 
 function handleLogout() {
+  // 退出登录：主动关闭消息 WebSocket 并清空消息仓库状态
+  useMessageStore().reset()
   localStorage.removeItem('token')
   localStorage.removeItem('nickname')
   localStorage.removeItem('phone')
@@ -287,6 +294,9 @@ async function fetchCenterInfo(): Promise<void> {
     if (res.data.code === 1) {
       // 业务成功：写入签到信息
       signInfo.value = res.data.data.signInfo
+      // 后端真实字段在 userInfo 下：points（文档误写为 newPoints）、signInDays
+      newPoints.value = res.data.data.userInfo.points
+      continueSignDays.value = res.data.data.userInfo.signInDays
     } else {
       // 业务失败：展示后端 msg
       showToast(res.data.msg || '获取签到信息失败')

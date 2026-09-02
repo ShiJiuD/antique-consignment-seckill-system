@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { loginByPassword, loginBySms } from '@/api/login'
 import { sendSmsCode } from '@/api/login'
+import { useMessageStore } from '@/stores/message'
 
 const router = useRouter()
 
@@ -120,6 +121,8 @@ const handleLogin = async () => {
 
         if (res.code === 1) {
             localStorage.setItem('token', res.data.token)
+            // 登录成功：建立消息 WebSocket 连接（幂等）
+            useMessageStore().connect()
             ElMessage.success('登录成功')
             router.push('/home')
         } else {
@@ -140,6 +143,8 @@ const handleSmsLogin = async () => {
         const res = await loginBySms(smsForm.phone, smsForm.code)
         if (res.code === 1) {  // ← 文档里成功是 code: 1
             localStorage.setItem('token', res.data.token)
+            // 登录成功：建立消息 WebSocket 连接（幂等）
+            useMessageStore().connect()
             ElMessage.success('登录成功')
             router.push('/home')
         } else {
