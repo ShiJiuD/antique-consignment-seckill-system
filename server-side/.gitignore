@@ -1,0 +1,78 @@
+# ===================
+# Java / Maven
+# ===================
+target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# ===================
+# IDE
+# ===================
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ===================
+# OS
+# ===================
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+Desktop.ini
+
+# ===================
+# Logs
+# ===================
+*.log
+logs/
+
+# ===================
+# Tools
+# ===================
+.impeccable/
+.claude/
+
+# ===================
+# 密钥 / 敏感配置
+# ===================
+application.yml
+application.properties
+application-*.yml
+application-*.properties
+!application-template.yml
+!application-template.properties
+!application-example.yml
+!application-example.properties
+
+# 环境变量文件
+.env
+.env.*
+!.env.example
+!.env.template
+
+# 密钥文件
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.pem.*
+id_rsa*
+*.pfx
+secrets/
+credentials/
+*.secret
